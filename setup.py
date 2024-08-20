@@ -3,9 +3,9 @@
 """
 from setuptools import setup
 setup(
-    name = "arcturus-web-be",
+    name = "arcturusWebBE",
     version = "0.1",
-    packages=["arcturus-web-be"],
+    packages=["arcturusWebBE"],
     author="Aluisio Leonello Victal",
     author_email = "alvictal@gmail.com",
     description = "Backend for project arcturus",
