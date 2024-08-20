@@ -4,4 +4,4 @@ import sys
 import arcturusWebBE.arcturusWebBE
 
 if __name__ == '__main__':
-    sys.exit(arcturusWebBE.arcturusWebBE.main())
+    sys.exit(arcturusWebBE.arcturusWebBE.run())
