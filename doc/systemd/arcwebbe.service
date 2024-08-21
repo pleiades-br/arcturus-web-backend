@@ -1,0 +1,14 @@
+[Unit]
+Description=Arcturus Backend service
+After=lighttpd.service
+
+[Service]
+Type=simple
+PIDFile=/run/arcwebbe.pid
+ExecStartPre=/usr/bin/arcwebbe
+ExecStart=/usr/bin/arcwebbe --port 8080
+ExecReload=/bin/kill -USR1 $MAINPID
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

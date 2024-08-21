@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+
+import sys
+import arcturus_web_be.arcturus_web_be
+
+if __name__ == '__main__':
+    sys.exit(arcturus_web_be.arcturus_web_be.main())
