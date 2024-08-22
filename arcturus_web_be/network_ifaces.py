@@ -10,10 +10,10 @@ def get_ethenet_info():
     iface = netifaces.ifaddresses("eth1")
     if iface != None:
         response["connection"] = "true"
-        response["ipaddr"] = iface[netifaces.AF_INET]["addr"]
-        response["netmask"] = iface[netifaces.AF_INET]["netmask"]
-        response["broadcast"] = iface[netifaces.AF_INET]["broadcast"]
-    
+        response["ipaddr"] = iface[netifaces.AF_INET][0]["addr"]
+        response["netmask"] = iface[netifaces.AF_INET][0]["netmask"]
+        response["broadcast"] = iface[netifaces.AF_INET][0]["broadcast"]
+    print(f'Ethernet info gathered: ${response}')
     return response
 
 def get_wifi_info():
