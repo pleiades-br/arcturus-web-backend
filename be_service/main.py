@@ -1,13 +1,13 @@
-from http.server import HTTPServer
-from http_handler import SimpleHandler
+
 import argparse
+from server import Server, RequestHandler, Storage, Response, Path
 
 
-def start_server(server_class=HTTPServer, handler_class=SimpleHandler, addr="127.0.0.1", port=8080):
+def start_server(server_class=Server, handler_class=RequestHandler, addr="127.0.0.1", port=8080):
     server_address = (addr, port)
-    httpd = server_class(server_address, handler_class)
-    print(f'Starting server on port {port}...')
-    httpd.serve_forever()
+    http_server = server_class(server_address, handler_class, Storage(Response()), Path, Response)
+    print(f"Starting server on {addr}:{port}")
+    http_server.serve_forever()
 
 def main():
     '''
