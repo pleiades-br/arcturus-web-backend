@@ -1,6 +1,6 @@
-from http.server import HTTPServer
-from http_handler import SimpleHandler
-from json import dumps, loads
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import network_ifaces as netif
+import json
 
 
 class Path():
@@ -19,45 +19,60 @@ class Path():
 
 
 class Response():
+    DEFAULT_RESPONSE = {"status": False, "message": "No path found"}
     INIT_JSON_STATUS_NETWORK_DATA = {"status": True, "ethernet": {}, "wifi": {}, "lte": {}}
 
 
-class Storage():
-    def __init__(self, response_data) -> None:
-        self.response_data = response_data
-        self.json = ""
-
-    def write_json(self, data) -> None:
-        self.json = data
-
-    def read_json(self) -> str:
-        return self.json
-    
+class Server(HTTPServer):
+    def __init__(self, server_address, request_handler, paths, response) -> None:
+        super().__init__(server_address, request_handler)
+        self.path = paths
+        self.response = response    
 
 
-class RequestHandler(SimpleHandler):
+class RequestHandler(BaseHTTPRequestHandler):
     def __init__(self, request, client_address, server_class) -> None:
         super().__init__(request, client_address, server_class)
         self.server_class = server_class
 
     def do_GET(self):
-        pass
+        if self.path == self.server_class.path.STATUS_NETWORK:
+            pass
+        elif self.path  == self.server_class.path.STATUS_SENSORS:
+            pass
+
+        return self.default_response()
+
 
     def do_POST(self):
         pass
 
-    def set_json_headers(self, success_response=None):
+
+    def set_json_headers(self, success_response=None) -> None:
         self.send_response(200)
         if success_response is not None:
             self.send_header("Content-type", "application/json")
             self.send_header("Content-Length", str(len(success_response)))
-        self.end_headers()
+        self.end_headers()       
+
+
+    def default_response(self) -> None:
+        '''
+        Implementation for default server response.
+        ''' 
+        response = self.server_class.response.DEFAULT_RESPONSE
+        self.set_json_headers(response)
+        self.wfile.write(json.dumps(response).encode('utf-8'))
+
+    
+    def status_network_response(self) -> None:
+        response = self.server_class.response.INIT_JSON_STATUS_NETWORK_DATA
+        response["ethernet"] = netif.EthernetIface("eth1").get_interface_info()
+        response["wifi"] = netif.WiFiIface("enps0").get_interface_info()
+        response["lte"] = netif.LTEIface("ppp0").get_interface_info()
+        
+        self.set_json_headers(response)
+        self.wfile.write(json.dumps(response).encode('utf-8'))
 
 
 
-class Server(HTTPServer):
-    def __init__(self, server_address, request_handler, storage, paths, response) -> None:
-        super().__init__(server_address, request_handler)
-        self.storage = storage
-        self.path = paths
-        self.response = response
