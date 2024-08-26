@@ -10,9 +10,9 @@ class NetworkIface():
         self.ipv4 = {"conn_status": False, "addr": "", "netmask": "", "broadcast": ""}
         self.ipv6 = {"addr": "", "netmask": ""}
         self.mac_addr = {"addr": ""}
-        self.collect_interface_info()
+        self.get_interface_parameter()
 
-    def get_interfaces_info(self): 
+    def get_interface_parameter(self): 
         if self.ifname not in netifaces.interfaces():
             logging.debug(f'Interface {self.ifname} no found')
             return
@@ -21,17 +21,17 @@ class NetworkIface():
         if netifaces.AF_INET in addrs:
             ipv4_info = addrs[netifaces.AF_INET]
             self.ipv4["conn_status"] = True
-            for key, value in ipv4_info[0].values():
+            for key, value in ipv4_info[0].items():
                 self.ipv4[key] = value
 
         if netifaces.AF_INET6 in addrs:
             ipv6_info = addrs[netifaces.AF_INET6]
-            for key, value in ipv6_info[0].values():
+            for key, value in ipv6_info[0].items():
                 self.ipv6[key] = value
 
         if netifaces.AF_LINK in addrs:
             mac_info = addrs[netifaces.AF_LINK]
-            for key, value in mac_info[0].values():
+            for key, value in mac_info[0].items():
                 self.mac_addr[key] = value
 
         logging.debug(f'Get information from interface: {self.ifname}')
