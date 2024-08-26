@@ -14,10 +14,12 @@ class NetworkIface():
         self.ipv6_ipaddr = ""
         self.ipv6_netmask = ""
         self.mac_addr = ""
+        self.collect_interface_info()
 
-    def __enter__(self): 
+    def collect_interface_info(self): 
         addrs = netifaces.ifaddresses(self.ifname)
         ipv4_info = netifaces.AF_INET in addrs
+        logging.debug(f'Get ipv4: {ipv4_info}')
         if ipv4_info:
             self.conn_status = True
             self.ipv4_ipaddr = ipv4_info[0]["addr"]
@@ -25,15 +27,17 @@ class NetworkIface():
             self.ipv4_broadcast = ipv4_info[0]["broadcast"]
 
         ipv6_info = netifaces.AF_INET6 in addrs
+        logging.debug(f'Get Ipv6: {ipv6_info}')
         if ipv6_info:
             self.ipv6_ipaddr = ipv6_info[0]["addr"]
             self.ipv6_netmask = ipv6_info[0]["netmask"]
 
         mac_info = netifaces.AF_LINK in addrs
+        logging.debug(f'Get Link: {mac_info}')
         if mac_info:
             self.mac_addr = mac_info[0]["addr"]
 
-        logging.debug(f'Get information from interface: ${self.ifname}')
+        logging.debug(f'Get information from interface: {self.ifname}')
 
     def get_ipv4_info(self) -> dict:
         '''
@@ -69,7 +73,7 @@ class NetworkIface():
 class EthernetIface(NetworkIface):
     def get_interface_info(self) -> dict:
         response = super().get_interface_info()
-        logging.debug(f'Ethernet Interface: ${self.ifname} \n Information: ${response}')
+        logging.debug(f'Ethernet Interface: {self.ifname} \n Information: {response}')
         return response
     
     def config_ethertnet(self, ipaddr: str, netmask: str):
@@ -123,7 +127,7 @@ class LTEIface(NetworkIface):
     def get_interface_info(self) -> dict:
         response = super().get_interface_info()
         response["lte_conf"] = self.get_lte_info()
-        logging.debug(f'LTE Interface: ${self.ifname} \n Information: ${response}')
+        logging.debug(f'LTE Interface: {self.ifname} \n Information: {response}')
         return response
 
     def config_lte(self, apn: str):
