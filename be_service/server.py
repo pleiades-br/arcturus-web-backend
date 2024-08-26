@@ -49,11 +49,9 @@ class RequestHandler(BaseHTTPRequestHandler):
         pass
 
 
-    def set_json_headers(self, success_response=None) -> None:
-        self.send_response(200)
-        #if success_response is not None:
+    def set_json_headers(self, http_code, success_response=None) -> None:
+        self.send_response(http_code)
         self.send_header("Content-type", "application/json")
-            #self.send_header("Content-Length", str(len(success_response)))
         self.end_headers()       
 
 
@@ -62,7 +60,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         Implementation for default server response.
         ''' 
         response = self.server_class.response.DEFAULT_RESPONSE
-        self.set_json_headers(response)
+        self.set_json_headers(404, response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
 
     
@@ -72,7 +70,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         response["wifi"] = netif.WiFiIface("enps0").get_interface_info()
         response["lte"] = netif.LTEIface("ppp0").get_interface_info()
         
-        self.set_json_headers(response)
+        self.set_json_headers(200, response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
 
 

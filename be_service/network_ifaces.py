@@ -17,6 +17,10 @@ class NetworkIface():
         self.collect_interface_info()
 
     def collect_interface_info(self): 
+        if self.ifname not in netifaces.interfaces():
+            logging.debug(f'Interface {self.ifname} no found')
+            return
+        
         addrs = netifaces.ifaddresses(self.ifname)
         if netifaces.AF_INET in addrs:
             ipv4_info = addrs[netifaces.AF_INET]
