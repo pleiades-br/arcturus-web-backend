@@ -32,12 +32,13 @@ class Server(HTTPServer):
 
 class RequestHandler(BaseHTTPRequestHandler):
     def __init__(self, request, client_address, server_class) -> None:
-        super().__init__(request, client_address, server_class)
         self.server_class = server_class
+        super().__init__(request, client_address, server_class)
+        
 
     def do_GET(self):
         if self.path == self.server_class.path.STATUS_NETWORK:
-            pass
+            return self.status_network_response()
         elif self.path  == self.server_class.path.STATUS_SENSORS:
             pass
 
@@ -50,9 +51,9 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def set_json_headers(self, success_response=None) -> None:
         self.send_response(200)
-        if success_response is not None:
-            self.send_header("Content-type", "application/json")
-            self.send_header("Content-Length", str(len(success_response)))
+        #if success_response is not None:
+        self.send_header("Content-type", "application/json")
+            #self.send_header("Content-Length", str(len(success_response)))
         self.end_headers()       
 
 
