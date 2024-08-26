@@ -7,16 +7,12 @@ class NetworkIface():
     ''' Root class for networkifaces '''
     def __init__(self, ifname: str) -> None:
         self.ifname = ifname
-        self.conn_status = False
-        self.ipv4_ipaddr = ""
-        self.ipv4_netmask = ""
-        self.ipv4_broadcast = ""
-        self.ipv6_ipaddr = ""
-        self.ipv6_netmask = ""
-        self.mac_addr = ""
+        self.ipv4 = {"conn_status": False, "addr": "", "netmask": "", "broadcast": ""}
+        self.ipv6 = {"addr": "", "netmask": ""}
+        self.mac_addr = {"addr": ""}
         self.collect_interface_info()
 
-    def collect_interface_info(self): 
+    def get_interfaces_info(self): 
         if self.ifname not in netifaces.interfaces():
             logging.debug(f'Interface {self.ifname} no found')
             return
@@ -24,43 +20,40 @@ class NetworkIface():
         addrs = netifaces.ifaddresses(self.ifname)
         if netifaces.AF_INET in addrs:
             ipv4_info = addrs[netifaces.AF_INET]
-            self.conn_status = True
-            self.ipv4_ipaddr = ipv4_info[0]["addr"]
-            self.ipv4_netmask  = ipv4_info[0]["netmask"]
-            self.ipv4_broadcast = ipv4_info[0]["broadcast"]
+            self.ipv4["conn_status"] = True
+            for key, value in ipv4_info[0].values():
+                self.ipv4[key] = value
 
         if netifaces.AF_INET6 in addrs:
             ipv6_info = addrs[netifaces.AF_INET6]
-            self.ipv6_ipaddr = ipv6_info[0]["addr"]
-            self.ipv6_netmask = ipv6_info[0]["netmask"]
+            for key, value in ipv6_info[0].values():
+                self.ipv6[key] = value
 
         if netifaces.AF_LINK in addrs:
             mac_info = addrs[netifaces.AF_LINK]
-            self.mac_addr = mac_info[0]["addr"]
+            for key, value in mac_info[0].values():
+                self.mac_addr[key] = value
 
         logging.debug(f'Get information from interface: {self.ifname}')
+
 
     def get_ipv4_info(self) -> dict:
         '''
         Return ipv4 information from the interface as dictionary 
         '''
-        return {"connection_state": self.conn_status, 
-                "addr": self.ipv4_ipaddr,
-                "netmask": self.ipv4_netmask,
-                "broadcast": self.ipv4_broadcast}
+        return self.ipv4
     
     def get_ipv6_info(self) -> dict:
         '''
         Return ipv6 information from the interface as dictionary 
         '''
-        return {"addr": self.ipv6_ipaddr,
-                "netmask": self.ipv6_netmask}
+        return self.ipv6
     
     def get_mac_info(self) -> dict:
         '''
         Return mac-address information from the interface as dictionary
         '''
-        return {"addr": self.mac_addr}
+        return self.mac_addr
     
     def get_interface_info(self) -> dict:
         '''
