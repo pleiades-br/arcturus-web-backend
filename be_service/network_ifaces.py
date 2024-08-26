@@ -18,23 +18,20 @@ class NetworkIface():
 
     def collect_interface_info(self): 
         addrs = netifaces.ifaddresses(self.ifname)
-        ipv4_info = netifaces.AF_INET in addrs
-        logging.debug(f'Get ipv4: {ipv4_info}')
-        if ipv4_info:
+        if netifaces.AF_INET in addrs:
+            ipv4_info = addrs[netifaces.AF_INET]
             self.conn_status = True
             self.ipv4_ipaddr = ipv4_info[0]["addr"]
             self.ipv4_netmask  = ipv4_info[0]["netmask"]
             self.ipv4_broadcast = ipv4_info[0]["broadcast"]
 
-        ipv6_info = netifaces.AF_INET6 in addrs
-        logging.debug(f'Get Ipv6: {ipv6_info}')
-        if ipv6_info:
+        if netifaces.AF_INET6 in addrs:
+            ipv6_info = addrs[netifaces.AF_INET6]
             self.ipv6_ipaddr = ipv6_info[0]["addr"]
             self.ipv6_netmask = ipv6_info[0]["netmask"]
 
-        mac_info = netifaces.AF_LINK in addrs
-        logging.debug(f'Get Link: {mac_info}')
-        if mac_info:
+        if netifaces.AF_LINK in addrs:
+            mac_info = addrs[netifaces.AF_LINK]
             self.mac_addr = mac_info[0]["addr"]
 
         logging.debug(f'Get information from interface: {self.ifname}')
