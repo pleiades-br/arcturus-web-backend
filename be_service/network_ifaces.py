@@ -189,10 +189,12 @@ method=auto
     def get_wifi_parameters(self):
         try:
             output = subprocess.run(self.NMCLI_CMD_ARGS, capture_output=True, text=True)
-            print(output)
-            print(output.split(':'))
+            if output.returncode == 0:
+                output_stdout = output.stdout
+                print(output_stdout)
+                print(output_stdout.split(':'))
         except:
-            pass
+            logging.error('Fetching information from Network Manager for wifi interface')
 
 
     def get_wifi_info(self) -> dict:
@@ -240,6 +242,7 @@ method=auto
         return False if result == None else True
 
 
+
 class LTEIface(NetworkIface):
     NMCLI_CMD_ARGS=[
         'nmcli',
@@ -285,14 +288,16 @@ refuse-mschapv2=false
         super().__init__(ifname)
         self.apn = ""
         self.signal = 0
+        self.get_lte_parameter()
 
     def get_lte_parameter(self):
         try:
             output = subprocess.run(self.NMCLI_CMD_ARGS, capture_output=True, text=True)
-            self.apn = output.split(':')[1]
-            print(self.apn)
+            if output.returncode == 0:
+                self.apn = output.stdout.split(':')[1]
+                print(self.apn)
         except:
-            pass
+            logging.error('Fetching information from Network Manager for lte interface')
 
     def get_lte_info(self) -> dict:
         '''
