@@ -138,6 +138,17 @@ ip6-privacy=0
         
 
 class WiFiIface(NetworkIface):
+    NMCLI_CMD_ARGS=[
+        'nmcli',
+        '-t',
+        '-s',
+        '-f',
+        '802-11-wireless.ssid,802-11-wireless.channel,\
+            802-11-wireless-security.key-mgmt,802-11-wireless-security.psk',
+        'con',
+        'show',
+        'wireless'
+    ]
     NM_CONFIG_FILE="/etc/NetworkManager/system-connections/wireless.nmconnection"
     NM_CONFIG_TEMPLATE="""
 [connection]
@@ -173,6 +184,16 @@ method=auto
         self.password = ""
         self.encrypt = ""
         self.channel = 3
+        self.get_wifi_parameters()
+
+    def get_wifi_parameters(self):
+        try:
+            output = subprocess.run(self.NMCLI_CMD_ARGS, capture_output=True, text=True)
+            print(output)
+            print(output.split(':'))
+        except:
+            pass
+
 
     def get_wifi_info(self) -> dict:
         '''
@@ -220,6 +241,16 @@ method=auto
 
 
 class LTEIface(NetworkIface):
+    NMCLI_CMD_ARGS=[
+        'nmcli',
+        '-t',
+        '-s',
+        '-f',
+        'gsm.apn',
+        'con',
+        'show',
+        'wireless'
+    ]
     NM_CONFIG_FILE="/etc/NetworkManager/system-connections/lte-modem.nmconnection"
     NM_CONFIG_TEMPLATE="""
 [connection]
@@ -254,6 +285,14 @@ refuse-mschapv2=false
         super().__init__(ifname)
         self.apn = ""
         self.signal = 0
+
+    def get_lte_parameter(self):
+        try:
+            output = subprocess.run(self.NMCLI_CMD_ARGS, capture_output=True, text=True)
+            self.apn = output.split(':')[1]
+            print(self.apn)
+        except:
+            pass
 
     def get_lte_info(self) -> dict:
         '''
