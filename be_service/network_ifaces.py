@@ -188,13 +188,24 @@ method=auto
 
     def get_wifi_parameters(self):
         try:
-            output = subprocess.run(self.NMCLI_CMD_ARGS, capture_output=True, text=True)
-            if output.returncode == 0:
-                output_stdout = output.stdout
-                print(output_stdout)
-                print(output_stdout.split(':'))
+            output = subprocess.run(self.NMCLI_CMD_ARGS, capture_output=True, text=True)              
         except:
             logging.error('Fetching information from Network Manager for wifi interface')
+            return
+        
+        if output.returncode == 0:
+            output_stdout = output.stdout
+            for str in [s for s in output_stdout.split('\n') if s]:
+                key,value = str.split(':')
+                match key:
+                    case '802-11-wireless.ssid':
+                        self.ssid = value
+                    case '802-11-wireless.channel':
+                        self.channel = int(value)
+                    case '802-11-wireless-security.key-mgmt':
+                        self.encrypt = value
+                    case '802-11-wireless-security.psk':
+                        self.password = value
 
 
     def get_wifi_info(self) -> dict:
@@ -252,7 +263,7 @@ class LTEIface(NetworkIface):
         'gsm.apn',
         'con',
         'show',
-        'wireless'
+        'lte-modem'
     ]
     NM_CONFIG_FILE="/etc/NetworkManager/system-connections/lte-modem.nmconnection"
     NM_CONFIG_TEMPLATE="""
@@ -293,11 +304,12 @@ refuse-mschapv2=false
     def get_lte_parameter(self):
         try:
             output = subprocess.run(self.NMCLI_CMD_ARGS, capture_output=True, text=True)
-            if output.returncode == 0:
-                self.apn = output.stdout.split(':')[1]
-                print(self.apn)
         except:
             logging.error('Fetching information from Network Manager for lte interface')
+            return
+        
+        if output.returncode == 0:
+            self.apn = output.stdout.split(':')[1]
 
     def get_lte_info(self) -> dict:
         '''
