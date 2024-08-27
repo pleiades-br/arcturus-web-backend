@@ -1,7 +1,7 @@
 import netifaces
 import logging 
-import os
-import re
+import subprocess
+from ipaddress import IPv4Network
 
 class NetworkIface():
     ''' Root class for networkifaces '''
@@ -12,7 +12,10 @@ class NetworkIface():
         self.mac_addr = {"addr": ""}
         self.get_interface_parameter()
 
-    def get_interface_parameter(self): 
+    def get_interface_parameter(self):
+        '''
+        Get the current information from the interface
+        ''' 
         if self.ifname not in netifaces.interfaces():
             logging.debug(f'Interface {self.ifname} no found')
             return
@@ -63,18 +66,79 @@ class NetworkIface():
                 "ipv6": self.get_ipv6_info(),
                 "link": self.get_mac_info()}
     
+    def write_config(self, config_txt, filename):
+        '''
+        Write configuration to a file indicate by filename and 
+        force the restart of NetworkManager
+        '''
+        try:
+            with open(filename,'w') as file:
+                file.write(config_txt)
+        except IOError:
+            logging.warning(f'Config file {filename} not found!')
+            return None
+        
+        return self.restart_network_manager()
+
+    def restart_network_manager(self):
+        return subprocess.Popen("systemctl restart NetworkManager", shell=True)
+    
+
 
 class EthernetIface(NetworkIface):
+    NM_CONFIG_FILE="/etc/NetworkManager/system-connections/wired.nmconnection"
+    NM_CONFIG_TEMPLATE="""
+[connection]
+id=wired
+uuid=83470bf3-2346-423c-84c2-6e2ce0e0c74e
+type=ethernet
+autoconnect=true
+autoconnect-priority=999
+interface-name=eth1
+
+[ethernet]
+
+[ipv4]
+method=manual
+address1={ipaddr}/{prefix}
+gateway={gateway}
+
+[ipv6]
+method=auto
+addr-gen-mode=stable-privacy
+ip6-privacy=0
+"""
     def get_interface_info(self) -> dict:
+        '''
+        Get all the information available for Ethernet interface and return as Dictionary
+        '''
         response = super().get_interface_info()
         logging.debug(f'Ethernet Interface: {self.ifname} \n Information: {response}')
         return response
     
-    def config_ethertnet(self, ipaddr: str, netmask: str):
-        pass
+    def config_ethertnet(self,ipaddr="192.168.30.1" ,
+                         netmask="255.255.255.0",
+                         gateway="192.168.30.254") -> bool:
+        '''
+        This method create the NetWork Manager config file, write the it and restart 
+        Network Manager to read the new config file. 
+        '''
+        nm_config = self.NM_CONFIG_TEMPLATE.format(
+                ipaddr=ipaddr,
+                prefix=IPv4Network(f"0.0.0.0/{netmask}").prefixlen,
+                gateway=gateway
+        )
 
+        logging.debug(f'Ethernet interface: {self.ifname} \
+                      configuration request with: \n\
+                      ip addr:{ipaddr} netmask:{netmask} gateway:{gateway}')
+        result = self.write_config(nm_config,self.NM_CONFIG_FILE)
+        return False if result == None else True
+
+        
 
 class WiFiIface(NetworkIface):
+    NM_CONFIG_FILE="/etc/NetworkManager/system-connections/wireless.nmconnection"
     def __init__(self, ifname: str) -> None:
         super().__init__(ifname)
         self.ssid = ""
@@ -106,6 +170,37 @@ class WiFiIface(NetworkIface):
 
 
 class LTEIface(NetworkIface):
+    #NM_CONFIG_FILE="/etc/NetworkManager/system-connections/lte-modem.nmconnection"
+    NM_CONFIG_FILE="teste-lte.txt"
+    NM_CONFIG_TEMPLATE="""
+[connection]
+id=lte-modem
+uuid=4f91b966-ce9b-4690-835b-342f031fd7f0
+type=gsm
+autoconnect=true
+
+[gsm]
+apn={apn}
+
+[serial]
+baud=115200
+
+[ipv4]
+method=auto
+
+[ipv6]
+method=ignore
+
+[ppp]
+lcp-echo-failure=5
+lcp-echo-interval=30
+refuse-eap=true
+refuse-pap=false
+refuse-chap=false
+refuse-mschap=false
+refuse-mschapv2=false
+"""
+
     def __init__(self, ifname: str) -> None:
         super().__init__(ifname)
         self.apn = ""
@@ -124,5 +219,11 @@ class LTEIface(NetworkIface):
         logging.debug(f'LTE Interface: {self.ifname} \n Information: {response}')
         return response
 
-    def config_lte(self, apn: str):
-        pass
+    def config_lte(self, apn="timbrasil.br"):
+        nm_config = self.NM_CONFIG_TEMPLATE.format(apn=apn )
+
+        logging.debug(f'LTE interface: {self.ifname} \
+                      configuration request with: \n\
+                      apn:{apn}')
+        result = self.write_config(nm_config,self.NM_CONFIG_FILE)
+        return False if result == None else True
