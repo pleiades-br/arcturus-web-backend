@@ -16,6 +16,7 @@ print(eth_iface.config_ethertnet(ipaddr="10.10.0.1"))
 print(eth_iface.get_interface_info())
 
 wifi_iface = netif.WiFiIface("enps01")
+print(wifi_iface.config_wifi(channel=9))
 print(wifi_iface.get_interface_info())
 
 LTE_iface = netif.LTEIface("ppp0")

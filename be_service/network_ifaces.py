@@ -139,11 +139,40 @@ ip6-privacy=0
 
 class WiFiIface(NetworkIface):
     NM_CONFIG_FILE="/etc/NetworkManager/system-connections/wireless.nmconnection"
+    NM_CONFIG_TEMPLATE="""
+[connection]
+id=wireless
+uuid=29883662-1f5e-4e24-aa6c-f3fd03123a75
+type=wifi
+interface-name=wlan0
+
+[wifi]
+band=bg
+channel={channel}
+mode=ap
+ssid={ssid}
+
+[wifi-security]
+key-mgmt={crypt}
+psk={password}
+
+[ipv4]
+address1={ipaddr}/{prefix}
+method=shared
+
+[ipv6]
+addr-gen-mode=stable-privacy
+method=auto
+
+[proxy]
+"""
+
     def __init__(self, ifname: str) -> None:
         super().__init__(ifname)
         self.ssid = ""
         self.password = ""
         self.encrypt = ""
+        self.channel = 3
 
     def get_wifi_info(self) -> dict:
         '''
@@ -151,7 +180,8 @@ class WiFiIface(NetworkIface):
         '''
         return {"ssid": self.ssid,
                 "password": self.password,
-                "encrypt": self.encrypt}
+                "encrypt": self.encrypt,
+                "channel": self.channel}
 
     def get_interface_info(self) -> dict:
         '''
@@ -162,16 +192,35 @@ class WiFiIface(NetworkIface):
         logging.debug(f'WiFi Interface: ${self.ifname} \n Information: ${response}')
         return response
 
-    def config_wifi(self, ipaddr: str, netmask: str, ssid: str, password: str, crypt: str):
+    def config_wifi(self, 
+                    ipaddr="192.168.100.1", 
+                    netmask="255.255.255.0",
+                    ssid="ARCTURUS_WIFI", 
+                    password="arcturus123",
+                    crypt="wpa-psk",
+                    channel=3) -> bool:
         '''
         Change the configuration for wifi interface
         '''
-        pass
+        nm_config = self.NM_CONFIG_TEMPLATE.format(
+                ipaddr=ipaddr,
+                prefix=IPv4Network(f"0.0.0.0/{netmask}").prefixlen,
+                ssid=ssid,
+                crypt=crypt,
+                password=password,
+                channel=channel
+        )
+
+        logging.debug(f'Ethernet interface: {self.ifname} \
+                      configuration request with: \n\
+                      ip addr:{ipaddr} netmask:{netmask} ssid={ssid} \
+                      crypt:{crypt} password: {password} channel: {channel}')
+        result = self.write_config(nm_config, self.NM_CONFIG_FILE)
+        return False if result == None else True
 
 
 class LTEIface(NetworkIface):
-    #NM_CONFIG_FILE="/etc/NetworkManager/system-connections/lte-modem.nmconnection"
-    NM_CONFIG_FILE="teste-lte.txt"
+    NM_CONFIG_FILE="/etc/NetworkManager/system-connections/lte-modem.nmconnection"
     NM_CONFIG_TEMPLATE="""
 [connection]
 id=lte-modem
