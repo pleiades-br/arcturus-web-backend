@@ -195,6 +195,8 @@ method=auto
         
         if output.returncode == 0:
             output_stdout = output.stdout
+            print(output_stdout)
+            print(output_stdout.split('\n'))
             for str in [s for s in output_stdout.split('\n') if s]:
                 key,value = str.split(':')
                 match key:
