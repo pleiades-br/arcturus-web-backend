@@ -1,27 +1,18 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
-import network_ifaces as netif
+#import network_ifaces as netif
 import json
 
 
 class Path():
-    STATUS_NETWORK = "/api/v1/status/network"
-    STATUS_SENSORS = "/api/v1/status/sensors"
-    CONFIG_ETH = "/api/v1/conf/ethernet"
-    CONFIG_WIFI = "/api/v1/conf/wifi"
-    CONFIG_LTE = "/api/v1/conf/lte"
-    CONFIG_SENSORS = "/api/v1/conf/sensors"
-    UTIL_SYSTEM_LOG = "/api/v1/util/log"
-    UTIL_NETTOOLS = "/api/v1/util/nettools"
-    UTIL_PAGE = "/api/v1/util/page"
-    UTIL_BACKUP = "/api/v1/util/backup"
-    UTIL_RESTORE = "/api/v1/util/restore"
-    SEC_PASSWD = "/api/v1/sec/passwd"
+    SENSORS_DATA = "/api/sensors_data"
+    CONFIG_ETH = "/api/ethernet"
+    CONFIG_WIFI = "/api/wifi"
+    CONFIG_LTE = "/api/lte"
+    CONFIG_SENSORS = "/api/sensors_config"
 
 
 class Response():
     DEFAULT_RESPONSE = {"status": False, "message": "No path found"}
-    INIT_JSON_STATUS_NETWORK_DATA = {"status": True, "ethernet": {}, "wifi": {}, "lte": {}}
-
 
 class Server(HTTPServer):
     def __init__(self, server_address, request_handler, paths, response) -> None:
@@ -37,9 +28,15 @@ class RequestHandler(BaseHTTPRequestHandler):
         
 
     def do_GET(self):
-        if self.path == self.server_class.path.STATUS_NETWORK:
-            return self.status_network_response()
-        elif self.path  == self.server_class.path.STATUS_SENSORS:
+        if self.path == self.server_class.path.SENSORS_DATA:
+            return self.get_sensors_data()
+        elif self.path  == self.server_class.path.CONFIG_ETH:
+            pass
+        elif self.path  == self.server_class.path.CONFIG_WIFI:
+            pass
+        elif self.path  == self.server_class.path.CONFIG_LTE:
+            pass
+        elif self.path  == self.server_class.path.CONFIG_SENSORS:
             pass
 
         return self.default_response()
@@ -52,7 +49,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     def set_json_headers(self, http_code, success_response=None) -> None:
         self.send_response(http_code)
         self.send_header("Content-type", "application/json")
-        self.end_headers()       
+        self.end_headers()    
 
 
     def default_response(self) -> None:
@@ -63,6 +60,21 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.set_json_headers(404, response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
 
+    def get_sensors_data(self) -> None:
+        response = {
+                "rail_bar_alarm": "off",
+                "rail_bar_vcc": 9000,
+                "rail_temp": 85,
+                "pwd_batt": 11500,
+                "pwd_solar": 5000,
+                "hw_temp": 60,
+                "hw_humi": 75,
+                "hw_j3_alarm": "on",
+                "hw_j4_alarm": "off"
+        }
+
+        self.set_json_headers(200, response)
+        self.wfile.write(json.dumps(response).encode('utf-8'))
     
     def status_network_response(self) -> None:
         response = self.server_class.response.INIT_JSON_STATUS_NETWORK_DATA
