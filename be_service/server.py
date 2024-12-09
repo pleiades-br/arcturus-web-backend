@@ -25,8 +25,13 @@ class RequestHandler(BaseHTTPRequestHandler):
     def __init__(self, request, client_address, server_class) -> None:
         self.server_class = server_class
         super().__init__(request, client_address, server_class)
-        
 
+    def _set_headers(self):
+        # Set CORS headers
+        self.send_header('Access-Control-Allow-Origin', '*')  # Allow all origins
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+    
     def do_GET(self):
         if self.path == self.server_class.path.SENSORS_DATA:
             return self.get_sensors_data()
@@ -46,10 +51,20 @@ class RequestHandler(BaseHTTPRequestHandler):
         pass
 
 
+
+    def do_OPTIONS(self):
+        # Handle preflight CORS requests
+        self.send_response(200)
+        self._set_headers()
+        self.end_headers()
+
+
     def set_json_headers(self, http_code, success_response=None) -> None:
         self.send_response(http_code)
+
+        self._set_headers()       
         self.send_header("Content-type", "application/json")
-        self.end_headers()    
+        self.end_headers()
 
 
     def default_response(self) -> None:
