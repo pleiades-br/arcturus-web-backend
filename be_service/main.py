@@ -4,7 +4,7 @@ from server import Server, RequestHandler, Response, Path
 import logging
 
 
-def start_server(server_class=Server, handler_class=RequestHandler, addr="127.0.0.1", port=24042):
+def start_server(server_class=Server, handler_class=RequestHandler, addr="0.0.0.0", port=24042):
     server_address = (addr, port)
     http_server = server_class(server_address, handler_class, Path, Response)
     logging.debug(f"Starting server on {addr}:{port}")

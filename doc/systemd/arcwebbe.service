@@ -5,7 +5,7 @@ After=lighttpd.service
 [Service]
 PIDFile=/run/arcwebbe.pid
 Environment=PYTHONUNBUFFERED=1
-ExecStart=/usr/bin/arcwebbe --port 8080
+ExecStart=/usr/bin/arcwebbe --port 24042
 ExecReload=/bin/kill -USR1 $MAINPID
 Restart=on-failure
 
