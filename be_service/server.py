@@ -1,5 +1,6 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 #import network_ifaces as netif
+import sensor_data 
 import json
 
 
@@ -34,7 +35,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     
     def do_GET(self):
         if self.path == self.server_class.path.SENSORS_DATA:
-            return self.get_sensors_data()
+            return get_sensor_data()
         elif self.path  == self.server_class.path.CONFIG_ETH:
             pass
         elif self.path  == self.server_class.path.CONFIG_WIFI:
@@ -76,26 +77,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(response).encode('utf-8'))
 
     def get_sensors_data(self) -> None:
-        response = {
-                "rail": {
-                    "bar_alarm": "off",
-                    "bar_vcc": 9000,
-                    "temp": 85,
-                },
-
-                "power": {
-                    "batt": 11500,
-                    "solar": 5000,
-                },
-
-                "hw": {
-                    "temp": 60,
-                    "humi": 75,
-                    "j3_alarm": "on",
-                    "j4_alarm": "off"
-                }
-        }
-
+        response = sensor_data.get_sensor_data()
         self.set_json_headers(200, response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
     
