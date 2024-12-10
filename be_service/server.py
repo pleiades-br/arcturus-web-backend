@@ -35,7 +35,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     
     def do_GET(self):
         if self.path == self.server_class.path.SENSORS_DATA:
-            return get_sensor_data()
+            return self.get_sensors_data()
         elif self.path  == self.server_class.path.CONFIG_ETH:
             pass
         elif self.path  == self.server_class.path.CONFIG_WIFI:
