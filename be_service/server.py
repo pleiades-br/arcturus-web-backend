@@ -77,15 +77,23 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def get_sensors_data(self) -> None:
         response = {
-                "rail_bar_alarm": "off",
-                "rail_bar_vcc": 9000,
-                "rail_temp": 85,
-                "pwd_batt": 11500,
-                "pwd_solar": 5000,
-                "hw_temp": 60,
-                "hw_humi": 75,
-                "hw_j3_alarm": "on",
-                "hw_j4_alarm": "off"
+                "rail": {
+                    "bar_alarm": "off",
+                    "bar_vcc": 9000,
+                    "temp": 85,
+                },
+
+                "power": {
+                    "batt": 11500,
+                    "solar": 5000,
+                },
+
+                "hw": {
+                    "temp": 60,
+                    "humi": 75,
+                    "j3_alarm": "on",
+                    "j4_alarm": "off"
+                }
         }
 
         self.set_json_headers(200, response)
