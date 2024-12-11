@@ -1,5 +1,5 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
-#import network_ifaces as netif
+import network_ifaces as netif
 import sensor_data 
 import json
 
@@ -37,7 +37,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         if self.path == self.server_class.path.SENSORS_DATA:
             return self.get_sensors_data()
         elif self.path  == self.server_class.path.CONFIG_ETH:
-            pass
+            return self.get_ethernet_config()
         elif self.path  == self.server_class.path.CONFIG_WIFI:
             pass
         elif self.path  == self.server_class.path.CONFIG_LTE:
@@ -80,7 +80,11 @@ class RequestHandler(BaseHTTPRequestHandler):
         response = sensor_data.get_sensor_data()
         self.set_json_headers(200, response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
-        
+
+    def get_ethernet_config(self) -> None:
+        response = netif.EthernetIface("eth1").get_interface_info()
+        self.set_json_headers(200, response)
+        self.wfile.write(json.dumps(response).encode('utf-8'))
     
     def status_network_response(self) -> None:
         response = self.server_class.response.INIT_JSON_STATUS_NETWORK_DATA
