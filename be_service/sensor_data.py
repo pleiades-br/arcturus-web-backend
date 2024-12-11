@@ -12,6 +12,7 @@ def get_sensor_data():
         logging.error(f'Not possible to get data from file: {SENSOR_DATA_FILE}. Error: {e}')
 
     if sensor_data is not None:
+        sensor_data = json.loads(sensor_data)
         logging.debug(sensor_data)
         logging.debug(type(sensor_data))
         logging.debug(type(sensor_data["external_alarms"]))
