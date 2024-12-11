@@ -63,7 +63,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     def set_json_headers(self, http_code, success_response=None) -> None:
         self.send_response(http_code)
 
-        self._set_headers()       
+        self._set_headers()   
         self.send_header("Content-type", "application/json")
         self.end_headers()
 
@@ -80,6 +80,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         response = sensor_data.get_sensor_data()
         self.set_json_headers(200, response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
+        
     
     def status_network_response(self) -> None:
         response = self.server_class.response.INIT_JSON_STATUS_NETWORK_DATA
