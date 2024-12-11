@@ -12,8 +12,9 @@ def get_sensor_data():
         logging.error(f'Not possible to get data from file: {SENSOR_DATA_FILE}. Error: {e}')
 
     if sensor_data is not None:
-        sensor_data["external_alarms"] = json.loads(sensor_data["external_alarms"])
-        sensor_data["vcc_bar_sensor"] = json.loads(sensor_data["vcc_bar_sensor"])
+        logging.debug(sensor_data)
+        logging.debug(sensor_data["external_alarms"])
+        logging.debug(type(sensor_data["external_alarms"]))
         return {
            "rail": {
                 "bar_alarm": sensor_data["external_alarms"]["bar_in"],
