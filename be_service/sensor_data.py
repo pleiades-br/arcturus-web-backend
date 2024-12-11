@@ -13,8 +13,9 @@ def get_sensor_data():
 
     if sensor_data is not None:
         logging.debug(sensor_data)
-        logging.debug(sensor_data["external_alarms"])
+        logging.debug(type(sensor_data))
         logging.debug(type(sensor_data["external_alarms"]))
+        logging.debug(sensor_data["external_alarms"])
         return {
            "rail": {
                 "bar_alarm": sensor_data["external_alarms"]["bar_in"],
