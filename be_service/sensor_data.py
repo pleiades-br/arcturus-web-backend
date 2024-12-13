@@ -12,29 +12,8 @@ def get_sensor_data():
         logging.error(f'Not possible to get data from file: {SENSOR_DATA_FILE}. Error: {e}')
 
     if sensor_data is not None:
-        logging.debug(sensor_data)
-        logging.debug(type(sensor_data))
+        sensor_data["status"] = 200
         return sensor_data
 
 
-    return {
-           "rail": {
-                "bar_alarm": "error",
-                "bar_vcc": "error",
-                "temp": "error",
-            },
-
-            "power": {
-                "batt": "error",
-                "solar": "error",
-            },
-
-            "hw": {
-                "temp": "error",
-                "humi": "error",
-                "j3_vcc": "error",
-                "j4_vcc": "error",
-                "pta1_alarm": "error",
-                "pta2_alarm": "error"
-            }
-    }
+    return {'status': 400}
