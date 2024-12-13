@@ -1,6 +1,7 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import network_ifaces as netif
 import sensor_data 
+import mqtt_data
 import json
 
 
@@ -9,6 +10,7 @@ class Path():
     CONFIG_ETH = "/api/ethernet"
     CONFIG_WIFI = "/api/wifi"
     CONFIG_LTE = "/api/lte"
+    CONFIG_MQTT = "/api/mqtt"
     CONFIG_SENSORS = "/api/sensors_config"
 
 
@@ -42,6 +44,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             pass
         elif self.path  == self.server_class.path.CONFIG_LTE:
             pass
+        elif self.path  == self.server_class.path.CONFIG_MQTT:
+            self.get_mqtt_data()
         elif self.path  == self.server_class.path.CONFIG_SENSORS:
             pass
 
@@ -69,20 +73,35 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
     def default_response(self) -> None:
-        '''
+        """
         Implementation for default server response.
-        ''' 
+        """
         response = self.server_class.response.DEFAULT_RESPONSE
         self.set_json_headers(404, response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
 
     def get_sensors_data(self) -> None:
+        """
+        Build the response for sensor GET command
+        """
         response = sensor_data.get_sensor_data()
         self.set_json_headers(200, response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
 
+    def get_mqtt_data(self) -> None:
+        """
+        Build the response for mqtt GET command
+        """
+        response = mqtt_data.get_mqtt_data()
+        self.set_json_headers(200, response)
+        self.wfile.write(json.dumps(response).encode('utf-8'))
+
     def get_ethernet_config(self) -> None:
+        """
+        Build the response for ethernet GET command
+        """
         response = netif.EthernetIface("eth1").get_interface_info()
+        response["status"] = 200
         self.set_json_headers(200, response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
     
