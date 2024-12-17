@@ -45,7 +45,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         elif self.path  == self.server_class.path.CONFIG_LTE:
             pass
         elif self.path  == self.server_class.path.CONFIG_MQTT:
-            self.get_mqtt_data()
+            return self.get_mqtt_data()
         elif self.path  == self.server_class.path.CONFIG_SENSORS:
             pass
 
