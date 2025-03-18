@@ -339,8 +339,10 @@ refuse-mschapv2=false
         '''
         self._get_signal_info()
         return {"apn": self.apn,
-                "signal_quality": self.signal,
-                "state": self.state}
+                "signal": self.signal,
+                "state": self.state,
+                "gps_lat": "100.5",
+                "gps_long": "80.5"}
     
     def get_interface_info(self) -> dict:
         response = super().get_interface_info()

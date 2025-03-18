@@ -21,7 +21,7 @@ class Server(HTTPServer):
     def __init__(self, server_address, request_handler, paths, response) -> None:
         super().__init__(server_address, request_handler)
         self.path = paths
-        self.response = response    
+        self.response = response   
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -38,15 +38,15 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == self.server_class.path.SENSORS_DATA:
             return self.get_sensors_data()
-        elif self.path  == self.server_class.path.CONFIG_ETH:
+        elif self.path == self.server_class.path.CONFIG_ETH:
             return self.get_ethernet_config()
-        elif self.path  == self.server_class.path.CONFIG_WIFI:
-            pass
-        elif self.path  == self.server_class.path.CONFIG_LTE:
-            pass
-        elif self.path  == self.server_class.path.CONFIG_MQTT:
+        elif self.path == self.server_class.path.CONFIG_WIFI:
+            return self.get_wifi_config()
+        elif self.path == self.server_class.path.CONFIG_LTE:
+            return self.get_lte_config()
+        elif self.path == self.server_class.path.CONFIG_MQTT:
             return self.get_mqtt_data()
-        elif self.path  == self.server_class.path.CONFIG_SENSORS:
+        elif self.path == self.server_class.path.CONFIG_SENSORS:
             pass
 
         return self.default_response()
@@ -101,6 +101,24 @@ class RequestHandler(BaseHTTPRequestHandler):
         Build the response for ethernet GET command
         """
         response = netif.EthernetIface("eth1").get_interface_info()
+        response["status"] = 200
+        self.set_json_headers(200, response)
+        self.wfile.write(json.dumps(response).encode('utf-8'))
+
+    def get_wifi_config(self) -> None:
+        """
+        Build the response for ethernet GET command
+        """
+        response = netif.LTEIface("enps0").get_interface_info()
+        response["status"] = 200
+        self.set_json_headers(200, response)
+        self.wfile.write(json.dumps(response).encode('utf-8'))
+
+    def get_lte_config(self) -> None:
+        """
+        Build the response for ethernet GET command
+        """
+        response = netif.WiFiIface("ppp0").get_interface_info()
         response["status"] = 200
         self.set_json_headers(200, response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
