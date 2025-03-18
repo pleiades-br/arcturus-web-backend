@@ -109,7 +109,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         """
         Build the response for ethernet GET command
         """
-        response = netif.LTEIface("enps0").get_interface_info()
+        response = netif.WiFiIface("enps0").get_interface_info()
         response["status"] = 200
         self.set_json_headers(200, response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
@@ -118,7 +118,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         """
         Build the response for ethernet GET command
         """
-        response = netif.WiFiIface("ppp0").get_interface_info()
+        response = netif.LTEIface("ppp0").get_interface_info()
         response["status"] = 200
         self.set_json_headers(200, response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
