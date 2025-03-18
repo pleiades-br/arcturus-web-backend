@@ -329,7 +329,8 @@ refuse-mschapv2=false
             return
         
         if output.returncode == 0:
-            modem_data = json.load(output.stdout)
+            modem_data = json.loads(output.stdout)
+            logging.error(f'{modem_data}')
             self.signal = modem_data["modem"]["generic"]["signal-quality"]["value"]
             self.state = modem_data["modem"]["generic"]["state"]
 
