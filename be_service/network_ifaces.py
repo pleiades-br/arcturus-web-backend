@@ -1,6 +1,7 @@
 import netifaces
 import logging 
 import subprocess
+import json
 from ipaddress import IPv4Network
 
 class NetworkIface():
@@ -133,7 +134,7 @@ ip6-privacy=0
                       configuration request with: \n\
                       ip addr:{ipaddr} netmask:{netmask} gateway:{gateway}')
         result = self.write_config(nm_config,self.NM_CONFIG_FILE)
-        return False if result == None else True
+        return False if result is None else True
 
         
 
@@ -249,7 +250,7 @@ method=auto
                       ip addr:{ipaddr} netmask:{netmask} ssid={ssid} \
                       crypt:{crypt} password: {password} channel: {channel}')
         result = self.write_config(nm_config, self.NM_CONFIG_FILE)
-        return False if result == None else True
+        return False if result is None else True
 
 
 
@@ -263,6 +264,13 @@ class LTEIface(NetworkIface):
         'con',
         'show',
         'lte-modem'
+    ]
+
+    MMCLI_CMD_ARGS=[
+        'mmcli',
+        '-m',
+        '0',
+        '-J'
     ]
     NM_CONFIG_FILE="/etc/NetworkManager/system-connections/lte-modem.nmconnection"
     NM_CONFIG_TEMPLATE="""
@@ -298,12 +306,13 @@ refuse-mschapv2=false
         super().__init__(ifname)
         self.apn = ""
         self.signal = 0
+        self.state = "disconnected"
         self.get_lte_parameter()
 
     def get_lte_parameter(self):
         try:
             output = subprocess.run(self.NMCLI_CMD_ARGS, capture_output=True, text=True)
-        except:
+        except Exception as e:
             logging.error('Fetching information from Network Manager for lte interface')
             return
         
@@ -312,12 +321,26 @@ refuse-mschapv2=false
                 key,value = str.split(':')
                 self.apn = value
 
+    def _get_signal_info(self):
+        try:
+            output = subprocess.run(self.MMCLI_CMD_ARGS, capture_output=True, text=True)
+        except Exception as e:
+            logging.error('Fetching information from Modem Manager for lte interface')
+            return
+        
+        if output.returncode == 0:
+            modem_data = json.load(output.stdout)
+            self.signal = modem_data["modem"]["generic"]["signal-quality"]["value"]
+            self.state = modem_data["modem"]["generic"]["state"]
+
     def get_lte_info(self) -> dict:
         '''
         Return specific information for LTE interface as dictionary
         '''
+        self._get_signal_info()
         return {"apn": self.apn,
-                "signal_quality": self.signal}
+                "signal_quality": self.signal,
+                "state": self.state}
     
     def get_interface_info(self) -> dict:
         response = super().get_interface_info()
@@ -332,4 +355,4 @@ refuse-mschapv2=false
                       configuration request with: \n\
                       apn:{apn}')
         result = self.write_config(nm_config,self.NM_CONFIG_FILE)
-        return False if result == None else True
+        return False if result is None else True
