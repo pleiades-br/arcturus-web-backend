@@ -1,7 +1,7 @@
 import json
 import logging
 
-MQTT_DATA_FILE = "/tmp/safetyrails/mqtt"
+MQTT_DATA_FILE = "./tmp/safetyrails/mqtt"
 
 
 def get_mqtt_data():
@@ -20,10 +20,12 @@ def get_mqtt_data():
     return {'status': 400}
 
 
-def post_ethernet_config(mqtt_config):
+def post_mqtt(mqtt_data):
+
+    logging.info(f"Received POST body: {mqtt_data}")
     try:
         with open(MQTT_DATA_FILE, 'w') as mqtt_file:
-            json.dump(mqtt_config, mqtt_file)
+            json.dump(mqtt_data, mqtt_file)
     except Exception as e:
         logging.error(f'Not possible to save data on file: \
                       {MQTT_DATA_FILE}. Error: {e}')
