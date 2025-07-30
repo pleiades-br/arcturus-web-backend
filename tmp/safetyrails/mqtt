@@ -1,0 +1,66 @@
+{
+    "status": 200,
+    "conn_status": true,
+    "ipv4":
+    {
+        "conn_status": true,
+        "addr": "123.123.123.123",
+        "netmask": "121.121.121.121",
+        "gateway": "103.103.103.103"
+    },
+    "ipv6": 
+    {
+        "addr": "2001::db54",
+        "netmask": "9875::db8f"
+    },
+    "wifi_conf":
+    {
+        "conn_status": true,
+        "ssid":"teste",
+        "rssi":"teste",
+        "channel": 9 ,
+        "encrypt":"teste"
+    },
+    "lte_conf":
+    {
+        "state": "connected",
+        "apn":"teste",
+        "signal":"teste",
+        "gps_lat":"teste",
+        "gps_long":"teste",
+        "apn_adress": "teste anp addr"
+    },
+    "server_addr":"123.123.123.123",
+    "server_port":"6666",
+    "server_topic":"teste",
+    "username":"teste",
+    "mqtt_time": 5 ,
+    "rail":
+    {
+        "bar_vcc": 200,
+        "temp":  150,
+        "bar_alarm": false,
+        "time": 10
+    },
+    "power":
+    {
+        "batt": 200,
+        "solar":  150,
+        "batt_time": 10,
+        "solar_time": 10
+    },
+    "hw":
+    {
+        "thres_ptas": 500,
+        "temp": 200,
+        "humi":  150,
+        "j3_vcc":  150,
+        "j4_vcc":  150,
+        "pta1_alarm":  false,
+        "pta2_alarm": false,
+        "time": 10
+    }
+
+}
+
+

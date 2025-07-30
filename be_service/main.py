@@ -10,6 +10,7 @@ def start_server(server_class=Server, handler_class=RequestHandler, addr="0.0.0.
     logging.debug(f"Starting server on {addr}:{port}")
     http_server.serve_forever()
 
+
 def main():
     '''
         Argument parsing with argparse and main job

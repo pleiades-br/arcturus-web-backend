@@ -6,6 +6,7 @@ WIFI_CONFIG_FILE = "./tmp/safetyrails/wifi"
 
 def get_wifi():
     wifi_config = None
+    logging.info(f"get_ethernet method WIFI data")
     try:
         with open(WIFI_CONFIG_FILE, 'r') as wifi_file:
             wifi_config = json.load(wifi_file)

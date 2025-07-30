@@ -1,7 +1,7 @@
 import json
 import logging
 
-SENSOR_DATA_FILE = "/tmp/safetyrails/sensordata"
+SENSOR_DATA_FILE = "./tmp/safetyrails/sensors_data"
 
 
 def get_sensor_data():

@@ -41,6 +41,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
 
     def do_GET(self):
+        logging.info(f"GET request received for: {self.path}")
         if self.path == self.server_class.path.SENSORS_DATA:
             return self.get_sensors_data()
         elif self.path == self.server_class.path.CONFIG_ETH:
@@ -50,6 +51,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         elif self.path == self.server_class.path.CONFIG_LTE:
             return self.get_lte_config()
         elif self.path == self.server_class.path.CONFIG_MQTT:
+            logging.info(f"GET request MQTT data")
             return self.get_mqtt_data()
         elif self.path == self.server_class.path.CONFIG_SENSORS:
             pass
@@ -64,6 +66,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             post_body_bytes = self.rfile.read(content_length)
             post_body_string = post_body_bytes.decode('utf-8')
             data = json.loads(post_body_string)
+            logging.info(f"POST request received and moving")
         except json.JSONDecodeError as e:
             logging.error(f"Error decoding JSON from POST request: {e}")
             return {'status': 400}
@@ -107,44 +110,51 @@ class RequestHandler(BaseHTTPRequestHandler):
         """
         Build the response for sensor GET command
         """
+        logging.info(f"GET method SENSORS data")
         response = sensor_data.get_sensor_data()
-        self.set_json_headers(200, response)
+        self.set_json_headers(response['status'], response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
+        logging.info(f"GET method SENSORS data response {response}")
 
     def get_mqtt_data(self) -> None:
         """
         Build the response for mqtt GET command
         """
+        logging.info(f"GET method MQTT data")
         response = mqtt_data.get_mqtt_data()
-        self.set_json_headers(200, response)
+        self.set_json_headers(response['status'], response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
+        logging.info(f"GET method MQTT data response {response}")
 
     def get_ethernet_config(self) -> None:
         """
         Build the response for ethernet GET command
         """
+        logging.info(f"GET method ETHERNET data")
         response = ethernet_data.get_ethernet()
-        response["status"] = 200
-        self.set_json_headers(200, response)
+        self.set_json_headers(response['status'], response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
+        logging.info(f"GET method ETHERNET data response {response}")
 
     def get_wifi_config(self) -> None:
         """
         Build the response for ethernet GET command
         """
-        response = netif.WiFiIface("enps0").get_interface_info()
-        response["status"] = 200
-        self.set_json_headers(200, response)
+        logging.info(f"GET method WIFI data")
+        response = wifi_data.get_wifi()
+        self.set_json_headers(response['status'], response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
+        logging.info(f"GET method WIFI data response {response}")
 
     def get_lte_config(self) -> None:
         """
         Build the response for ethernet GET command
         """
-        response = netif.LTEIface("ppp0").get_interface_info()
-        response["status"] = 200
-        self.set_json_headers(200, response)
+        logging.info(f"GET method LTE data")
+        response = lte_data.get_lte()
+        self.set_json_headers(response['status'], response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
+        logging.info(f"GET method LTE data response {response}")
 
     def status_network_response(self) -> None:
         response = self.server_class.response.INIT_JSON_STATUS_NETWORK_DATA
@@ -160,7 +170,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         Build the response for sensor GET command
         """
         response = sensor_data.post_sensor(data)
-        self.set_json_headers(200, response)
+        self.set_json_headers(response['status'], response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
 
     def post_mqtt_data(self, data) -> None:
@@ -168,29 +178,29 @@ class RequestHandler(BaseHTTPRequestHandler):
         Build the response for mqtt GET command
         """
         response = mqtt_data.post_mqtt(data)
-        self.set_json_headers(200, response)
+        self.set_json_headers(response['status'], response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
 
-    def post_ethernet_config(self) -> None:
+    def post_ethernet_config(self, data) -> None:
         """
         Build the response for ethernet GET command
         """
-        response = ethernet_data.post_ethernet(self)
+        response = ethernet_data.post_ethernet(data)
         self.set_json_headers(response['status'], response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
 
-    def post_wifi_config(self) -> None:
+    def post_wifi_config(self, data) -> None:
         """
         Build the response for wifi GET command
         """
-        response = wifi_data.post_wifi(self)
+        response = wifi_data.post_wifi(data)
         self.set_json_headers(response['status'], response)
         self.wfile.write(json.dumps(response).encode('utf-8'))
 
-    def post_lte_config(self) -> None:
+    def post_lte_config(self, data) -> None:
         """
         Build the response for lte GET command
         """
-        response = lte_data.post_lte(self)
+        response = lte_data.post_lte(data)
         self.set_json_headers(response['status'], response)
         self.wfile.write(json.dumps(response).encode('utf-8'))

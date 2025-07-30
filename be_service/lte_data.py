@@ -6,6 +6,7 @@ LTE_CONFIG_FILE = "./tmp/safetyrails/lte"
 
 def get_lte():
     lte_config = None
+    logging.info(f"get_lte method LTE data")
     try:
         with open(LTE_CONFIG_FILE, 'r') as lte_file:
             lte_config = json.load(lte_file)
