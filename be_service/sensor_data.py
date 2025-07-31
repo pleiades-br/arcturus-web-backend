@@ -21,11 +21,10 @@ def get_sensor_data():
 
 
 def post_sensor(sensor_data):
-    logging.info(f"method SENSORS")
+    logging.info(f"method SENSORS {sensor_data}")
     try:
         with open(SENSOR_DATA_FILE, 'w') as sensor_file:
             json.dump(sensor_data, sensor_file)
-            
     except Exception as e:
         logging.error(f'Not possible to save data on file: \
                        {SENSOR_DATA_FILE}. Error: {e}')
