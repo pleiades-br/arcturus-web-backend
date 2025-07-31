@@ -1,8 +1,1 @@
-{
-    "status": 200,
-    "mqtt_server_addr":"114.114.114.114",
-    "mqtt_server_port":"666",
-    "mqtt_server_topic":"teste",
-    "mqtt_username":"teste",
-    "mqtt_time": 5
-}
+{"status": 200, "mqtt_status": "true", "mqtt_server_addr": "114.114.114.114", "mqtt_server_port": "6666", "mqtt_server_topic": "teste", "mqtt_username": "teste", "mqtt_time": "5"}

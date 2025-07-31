@@ -6,7 +6,7 @@ ETHERNET_CONFIG_FILE = "./tmp/safetyrails/ethernet"
 
 def get_ethernet():
     ethernet_config = None
-    logging.info(f"get_ethernet method ETHERNET data")
+    logging.info("get_ethernet method ETHERNET data")
     try:
         with open(ETHERNET_CONFIG_FILE, 'r') as ethernet_file:
             ethernet_config = json.load(ethernet_file)

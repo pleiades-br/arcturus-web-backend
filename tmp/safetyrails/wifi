@@ -1,9 +1,1 @@
-{
-    "status": 200,
-    "wifi_status": true,
-    "wifi_ssid":"ssid_teste",
-    "wifi_rssi":"rssi_teste",
-    "wifi_channel": 9 ,
-    "wifi_security":"WEP",
-    "wifi_addr": "112.112.112.112"
-}
+{"status": 200, "wifi_status": "true", "wifi_ssid": "7", "wifi_channel": "2", "wifi_security": "WEP", "wifi_addr": "112.112.112.177", "password": "fff"}

@@ -6,7 +6,7 @@ MQTT_DATA_FILE = "./tmp/safetyrails/mqtt"
 
 def get_mqtt_data():
     mqtt_data = None
-    logging.info(f"get_mqtt_data method MQTT data")
+    logging.info("get_mqtt_data method MQTT data")
     try:
         with open(MQTT_DATA_FILE, 'r') as mqtt_file:
             mqtt_data = json.load(mqtt_file)
