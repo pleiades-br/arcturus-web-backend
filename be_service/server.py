@@ -151,7 +151,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(response).encode('utf-8'))
             logging.info(f"GET method WIFI data response {response}")
         else:
-            response = netif.WiFiIface('wlan0').get_interface_info()
+            response = netif.WiFiIface('enps0').get_interface_info()
             response['status'] = 200
             self.set_json_headers(200, response)
 
@@ -212,9 +212,9 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(response).encode('utf-8'))
             logging.info(f"POST method ETHERNET data response {response}")
         else:
-            netif.EthernetIface.config_ethernet(ipaddr=data['ipv4_addr'],
-                                                netmask=data['ipv4_mask'],
-                                                gateway=data['gateway'])
+            netif.EthernetIface("eth1").config_ethernet(ipaddr=data['ipv4_addr'],
+                                                        netmask=data['ipv4_mask'],
+                                                        gateway=data['gateway'])
 
     def post_wifi_config(self, data) -> None:
         """
@@ -227,11 +227,11 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(response).encode('utf-8'))
             logging.info(f"POST method WIFI data response {response}")
         else:
-            netif.WiFiIface.config_wifi(ipaddr=data['wifi_addr'],
-                                        ssid=data['wifi_ssid'],
-                                        password=data['password'],
-                                        crypt=data['wifi_security'],
-                                        channel=data['wifi_channel'])
+            netif.WiFiIface("enps0").config_wifi(ipaddr=data['wifi_addr'],
+                                                 ssid=data['wifi_ssid'],
+                                                 password=data['password'],
+                                                 crypt=data['wifi_security'],
+                                                 channel=data['wifi_channel'])
 
     def post_lte_config(self, data) -> None:
         """
@@ -244,4 +244,4 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(response).encode('utf-8'))
             logging.info(f"POST method LTE data response {response}")
         else:
-            netif.LTEIface.config_lte(apn=data["lte_provider"])
+            netif.LTEIface("ppp0").config_lte(apn=data["lte_provider"])
