@@ -1,5 +1,6 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import network_ifaces as netif
+import save_file_config
 import sensor_data
 import ethernet_data
 import wifi_data
@@ -7,8 +8,9 @@ import lte_data
 import mqtt_data
 import json
 import logging
+import subprocess
 
-IS_TESTING_LOCAL = True
+IS_TESTING_LOCAL = False
 
 
 class Path():
@@ -17,7 +19,9 @@ class Path():
     CONFIG_WIFI = "/api/wifi"
     CONFIG_LTE = "/api/lte"
     CONFIG_MQTT = "/api/mqtt"
-    CONFIG_SENSORS = "/api/sensors_config"
+    CONFIG_SENSORS = "/api/config_sensors"
+    PING = "/api/ping"
+    ROUTE = "/api/traceRoute"
 
 
 class Response():
@@ -56,6 +60,10 @@ class RequestHandler(BaseHTTPRequestHandler):
             return self.get_mqtt_data()
         elif self.path == self.server_class.path.CONFIG_SENSORS:
             pass
+        elif self.path == self.server_class.path.PING:
+            pass
+        elif self.path == self.server_class.path.ROUTE:
+            pass
 
         return self.default_response()
 
@@ -80,9 +88,12 @@ class RequestHandler(BaseHTTPRequestHandler):
             return self.post_wifi_config(data)
         elif self.path == self.server_class.path.CONFIG_LTE:
             return self.post_lte_config(data)
+        elif self.path == self.server_class.path.PING:
+            return self.ping_exec(data)
+        elif self.path == self.server_class.path.ROUTE:
+            return self.traceRoute(data)
         elif self.path == self.server_class.path.CONFIG_SENSORS:
             pass
-
         return self.default_response()
 
     def do_OPTIONS(self):
@@ -189,6 +200,23 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.set_json_headers(response['status'], response)
             self.wfile.write(json.dumps(response).encode('utf-8'))
             logging.info(f"POST method SENSORS data response {response}")
+        else:
+            save_file_config.sensor_save_config_file(
+                batt_time=data['batt_time'],
+                solar_time=data['solar_time'],
+                barra_in_check_s=data['rail_time'],
+                ptas_s=data['hw_time'],
+                barra_v_check_mv=data['rail_vcc_thres'],
+                barra_temperature_c=data['rail_temp'],
+                battery_mv=data['batt'],
+                solar_pannel=data['solar'],
+                thres_ptas=data['thres_ptas'],
+                rail_bar_alarm=data['rail_bar_alarm'],
+                rail_temp_alarm=data['rail_temp_alarm'],
+                batt_alarm=data['batt_alarm'],
+                solar_alarm=data['solar_alarm'],
+                pta1_alarm=data['pta1_alarm'],
+                pta2_alarm=data['pta2_alarm'])
 
     def post_mqtt_data(self, data) -> None:
         """
@@ -200,6 +228,14 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.set_json_headers(response['status'], response)
             self.wfile.write(json.dumps(response).encode('utf-8'))
             logging.info(f"POST method MQTT data response {response}")
+        else:
+            save_file_config.mqtt_save_config_file(
+                host=data['mqtt_server_addr'],
+                port=data['mqtt_server_port'],
+                username=data['mqtt_username'],
+                password=data['mqtt_password'],
+                topic=data['mqtt_server_topic'],
+                sleep_timer_s=data['mqtt_time'])
 
     def post_ethernet_config(self, data) -> None:
         """
@@ -212,9 +248,30 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(response).encode('utf-8'))
             logging.info(f"POST method ETHERNET data response {response}")
         else:
-            netif.EthernetIface("eth1").config_ethernet(ipaddr=data['ipv4_addr'],
-                                                        netmask=data['ipv4_mask'],
-                                                        gateway=data['gateway'])
+            netif.EthernetIface("eth1").config_ethernet(
+                ipaddr=data['ipv4_addr'],
+                netmask=data['ipv4_mask'],
+                gateway=data['gateway'])
+            try:
+                output = subprocess.run(
+                    ["ifconfig", "eth0", "down"],
+                    text=True,
+                    shell=False)
+            except Exception as e:
+                logging.info(f"{output.returncode}: Not possible to shutdown \
+                             EthernetE service: {output.returncode}. Error: {e}'")
+            if output.returncode != 0:
+                return {'status': 400}
+            try:
+                output = subprocess.run(
+                    ["ifconfig", "eth0", "up"],
+                    text=True,
+                    shell=False)
+            except Exception as e:
+                logging.info(f"{output.returncode}: Not possible to restart \
+                             Ethernet service: {output.returncode}. Error: {e}")
+            if output.returncode != 0:
+                return {'status': 400}
 
     def post_wifi_config(self, data) -> None:
         """
@@ -232,6 +289,26 @@ class RequestHandler(BaseHTTPRequestHandler):
                                                  password=data['password'],
                                                  crypt=data['wifi_security'],
                                                  channel=data['wifi_channel'])
+            try:
+                output = subprocess.run(
+                    ["ifconfig", "enps0", "down"],
+                    text=True,
+                    shell=False)
+            except Exception as e:
+                logging.info(f"{output.returncode}: Not possible to shutdown \
+                             wifi service: {output.returncode}. Error: {e}'")
+            if output.returncode != 0:
+                return {'status': 400}
+            try:
+                output = subprocess.run(
+                    ["ifconfig", "enps0", "up"],
+                    text=True,
+                    shell=False)
+            except Exception as e:
+                logging.info(f"{output.returncode}: Not possible to restart \
+                             wifi service: {output.returncode}. Error: {e}'")
+            if output.returncode != 0:
+                return {'status': 400}
 
     def post_lte_config(self, data) -> None:
         """
@@ -245,3 +322,101 @@ class RequestHandler(BaseHTTPRequestHandler):
             logging.info(f"POST method LTE data response {response}")
         else:
             netif.LTEIface("ppp0").config_lte(apn=data["lte_provider"])
+            try:
+                output = subprocess.run(
+                    ["nmcli" "con" "down" "lte"],
+                    text=True,
+                    shell=False)
+            except Exception as e:
+                logging.info(f"{output.returncode}: Not possible to shutdown \
+                             LTE service: {output.returncode}. Error: {e}'")
+            if output.returncode != 0:
+                return {'status': 400}
+            try:
+                output = subprocess.run(
+                    ["nmcli" "con" "up" "lte"], 
+                    text=True,
+                    shell=False)
+            except Exception as e:
+                logging.info(f"{output.returncode}: Not possible to restart \
+                             LTE service: {output.returncode}. Error: {e}'")
+            if output.returncode != 0:
+                return {'status': 400}
+
+    def ping_exec(self, data) -> None:
+        """
+        Build the response for lte POST command
+        """
+        logging.info("Ping exec")
+        if IS_TESTING_LOCAL:
+            output = subprocess.run(['echo', 'BikubeLabs'],
+                                    capture_output=True,
+                                    text=True,
+                                    shell=False)
+            response = {
+                'status': 200,
+                'pingTraceroute': output.stdout.strip()
+            }
+            logging.info(f"ping output {response}")
+        else:
+            path = data["pingTraceroute"]
+            try:
+                output = subprocess.run(
+                    ["ping", path, "-c", "10", "-w", "60", "-W", "60"],
+                    capture_output=True,
+                    text=True,
+                    shell=False)
+            except Exception as e:
+                logging.info(f" f'Not possible ping: \
+                      {data}. Error: {e}'")
+            response = {
+                'status': 400,
+                'pingTraceroute': output.stdout.strip()
+            }
+            if response['pingTraceroute'] is not None:
+                response['status'] = 200
+                self.set_json_headers(200, response)
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+                logging.info(f"ping output {response}")
+                return response
+            else:
+                return {'status': 400}
+
+    def traceRoute(self, data) -> None:
+        """
+        Build the response for lte POST command
+        """
+        logging.info("TraceRoute exec")
+        if IS_TESTING_LOCAL:
+            output = subprocess.run(['traceroute', 'https://bikubelabs.com/'],
+                                    capture_output=True,
+                                    text=True,
+                                    shell=True)
+            response = {
+                'status': 200,
+                'pingTraceroute': output.stdout
+            }
+            logging.info(f" exec response {response}")
+        else:
+            path = data["pingTraceroute"]
+            try:
+                output = subprocess.run(
+                    ["traceroute", path],
+                    capture_output=True,
+                    text=True,
+                    shell=False)
+            except Exception as e:
+                logging.info(f" Not possible traceroute: \
+                      {path}. Error: {e}'")
+            response = {
+                'status': 400,
+                'pingTraceroute': output.stdout.strip()
+            }
+            if response['pingTraceroute'] is not None:
+                response['status'] = 200
+                self.set_json_headers(200, response)
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+                logging.info(f"ping output {response}")
+                return response
+            else:
+                return {'status': 400}
