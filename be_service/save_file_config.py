@@ -1,9 +1,8 @@
 import configparser
 import os
 
-CURRENT_CONFIG_PATH_FILE = './tmp/safetyrails/sftrails.conf'
-NEW_CONFIG_PATH_FILE = './tmp/safetyrails/sftrails.conf.bkb'
-# /etc/sftrails/sftrails.conf
+CURRENT_CONFIG_PATH_FILE = '/etc/sftrails/sftrails.conf'
+NEW_CONFIG_PATH_FILE = '/etc/sftrails/sftrails.conf.bkb'
 
 
 default_config = {

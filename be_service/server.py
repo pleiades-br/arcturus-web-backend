@@ -347,7 +347,6 @@ class RequestHandler(BaseHTTPRequestHandler):
         """
         Build the response for lte POST command
         """
-        logging.info("Ping exec")
         if IS_TESTING_LOCAL:
             output = subprocess.run(['echo', 'BikubeLabs'],
                                     capture_output=True,
@@ -377,7 +376,6 @@ class RequestHandler(BaseHTTPRequestHandler):
                 response['status'] = 200
                 self.set_json_headers(200, response)
                 self.wfile.write(json.dumps(response).encode('utf-8'))
-                logging.info(f"ping output {response}")
                 return response
             else:
                 return {'status': 400}
@@ -386,7 +384,6 @@ class RequestHandler(BaseHTTPRequestHandler):
         """
         Build the response for lte POST command
         """
-        logging.info("TraceRoute exec")
         if IS_TESTING_LOCAL:
             output = subprocess.run(['traceroute', 'https://bikubelabs.com/'],
                                     capture_output=True,
@@ -416,7 +413,6 @@ class RequestHandler(BaseHTTPRequestHandler):
                 response['status'] = 200
                 self.set_json_headers(200, response)
                 self.wfile.write(json.dumps(response).encode('utf-8'))
-                logging.info(f"ping output {response}")
                 return response
             else:
                 return {'status': 400}
