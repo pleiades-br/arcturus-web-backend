@@ -1,0 +1,9 @@
+{
+    "status": 200,
+    "eth_status": "true",
+    "ipv4_addr": "111.111.111.111",
+    "ipv4_mask": "121.121.121.121",
+    "gateway": "103.103.103.103",
+    "ipv6_addr": "2001::db54",
+    "ipv6_mask": "9875::db8f"
+}

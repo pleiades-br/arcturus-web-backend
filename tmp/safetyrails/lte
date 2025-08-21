@@ -1,0 +1,9 @@
+{
+    "status": 200,
+    "lte_status": "connected",
+    "lte_provider":"lte_provider_TESTE",
+    "lte_rssi":"lte_rssi_teste",
+    "lte_ipv4_addr":"113.113.113.113",
+    "lte_gps_lat": "let_lat_teste",
+    "lte_gps_long":"teste"
+}

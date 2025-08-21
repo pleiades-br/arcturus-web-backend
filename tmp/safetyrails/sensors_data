@@ -1,0 +1,1 @@
+{"status": 200, "rail_bar_alarm": "false", "rail_vcc_thres": "201", "rail_temp_alarm": "false", "rail_temp": "151", "rail_time": "11", "batt_status": "off", "batt": "201", "batt_time": "11", "solar_status": "false", "solar": "1111", "solar_time": "11", "pta1_alarm": "false", "pta2_alarm": "false", "thres_ptas": "501", "hw_time": "11"}
